@@ -2,12 +2,11 @@ package me.andrew.routes;
 
 import org.apache.camel.builder.*;
 
-public class LandingPageRouteBuilder extends RouteBuilder {
+public class LandingPageRouteBuilder extends BaseRouteBuilder {
 
-	public void configure() throws Exception {
-		from("netty-http://0.0.0.0:7000?sync=true&nettySharedHttpServer=#httpServer")
-				.process(exchange -> {
-					exchange.getIn().setBody("hello world");
-				});
-	}
+    @Override
+    public void configure() throws Exception {
+        from("")
+            .process(exchange -> exchange.getIn().setBody("Hello World"));
+    }
 }

@@ -1,29 +1,28 @@
 package me.andrew;
 
-import io.netty.handler.codec.string.*;
-import me.andrew.routes.*;
-import org.apache.camel.*;
-import org.apache.camel.component.bean.*;
-import org.apache.camel.component.directvm.*;
-import org.apache.camel.component.netty.http.*;
-import org.apache.camel.impl.*;
-import org.apache.camel.support.*;
-import org.springframework.beans.*;
-import org.springframework.beans.factory.config.*;
-import org.springframework.beans.factory.support.*;
-import org.springframework.context.support.*;
 
+import lombok.extern.apachecommons.CommonsLog;
+import me.andrew.routes.LandingPageRouteBuilder;
+import org.apache.camel.CamelContext;
+import org.apache.camel.component.netty.http.DefaultNettySharedHttpServer;
+import org.apache.camel.component.netty.http.NettySharedHttpServer;
+import org.apache.camel.component.netty.http.NettySharedHttpServerBootstrapConfiguration;
+import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.support.DefaultRegistry;
+
+@CommonsLog
 public class Main {
 	public static void main(String[] args) {
 		new Main().start();
 	}
 
 	public void start() {
-		var server = startNettyServer();
-		startCamel(server);
+		var server = createAndStartDefaultNettyServer();
+		startCamelContext(server);
 	}
 
-	public NettySharedHttpServer startNettyServer() {
+	public NettySharedHttpServer createAndStartDefaultNettyServer() {
+		log.info("Stating netty server");
 		var nettyConfiguration = new NettySharedHttpServerBootstrapConfiguration();
 
 		nettyConfiguration.setPort(7000);
@@ -34,22 +33,31 @@ public class Main {
 
 		server.start();
 
+		log.info("Netty server started");
+
 		return server;
 	}
 
-	public void startCamel(NettySharedHttpServer server) {
-		var camelContext = new DefaultCamelContext();
+	public void startCamelContext(NettySharedHttpServer server) {
+		log.info("Starting camel context and routes");
+		var context = new DefaultCamelContext();
 
 		var registry = new DefaultRegistry();
-		registry.bind("httpServer", server);
+		registry.bind("defaultHttpServer", server);
+		context.setRegistry(registry);
 
-		camelContext.setRegistry(registry);
-		camelContext.start();
+		context.start();
 
+		registerCamelRoutes(context);
+
+		log.info("All routes started");
+	}
+
+	private void registerCamelRoutes(CamelContext context) {
 		try {
-			camelContext.addRoutes(new LandingPageRouteBuilder());
+			context.addRoutes(new LandingPageRouteBuilder());
 		} catch (Exception e) {
-			throw new RuntimeException("Unable to register camel routes");
+			throw new RuntimeException("Unable to register camel routes", e);
 		}
 	}
 }
