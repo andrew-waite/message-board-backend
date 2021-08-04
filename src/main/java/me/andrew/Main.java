@@ -1,6 +1,5 @@
 package me.andrew;
 
-
 import lombok.extern.apachecommons.CommonsLog;
 import me.andrew.routes.LandingPageRouteBuilder;
 import org.apache.camel.CamelContext;
@@ -9,6 +8,8 @@ import org.apache.camel.component.netty.http.NettySharedHttpServer;
 import org.apache.camel.component.netty.http.NettySharedHttpServerBootstrapConfiguration;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultRegistry;
+
+import java.util.Map;
 
 @CommonsLog
 public class Main {

@@ -6,7 +6,9 @@ public class LandingPageRouteBuilder extends BaseRouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        from("")
-            .process(exchange -> exchange.getIn().setBody("Hello World"));
+        from("/profile/{id}")
+            .process(exchange -> {
+                exchange.getIn().setBody("{\"firstName\": \"Bob" + exchange.getIn().getHeader("id") + "\"}" );
+            });
     }
 }
