@@ -1,6 +1,8 @@
 package me.andrew;
 
 import lombok.extern.apachecommons.CommonsLog;
+import me.andrew.providers.DatabaseProvider;
+import me.andrew.providers.MssqlDatabaseProvider;
 import me.andrew.routes.LandingPageRouteBuilder;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.netty.http.DefaultNettySharedHttpServer;
@@ -8,8 +10,9 @@ import org.apache.camel.component.netty.http.NettySharedHttpServer;
 import org.apache.camel.component.netty.http.NettySharedHttpServerBootstrapConfiguration;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultRegistry;
+import org.springframework.context.support.StaticApplicationContext;
 
-import java.util.Map;
+import javax.swing.*;
 
 @CommonsLog
 public class Main {
@@ -18,8 +21,19 @@ public class Main {
 	}
 
 	public void start() {
+		startSpringApplicationAndRegisterBeans();
+
 		var server = createAndStartDefaultNettyServer();
 		startCamelContext(server);
+
+	}
+
+	private void startSpringApplicationAndRegisterBeans() {
+		var staticApplicationContext = new StaticApplicationContext();
+		staticApplicationContext.getBeanFactory().registerSingleton("databaseProvider", new MssqlDatabaseProvider());
+		staticApplicationContext.registerBean("springContext", SpringContext.class, staticApplicationContext);
+		staticApplicationContext.refresh();
+		staticApplicationContext.start();
 	}
 
 	public NettySharedHttpServer createAndStartDefaultNettyServer() {
@@ -46,7 +60,6 @@ public class Main {
 		var registry = new DefaultRegistry();
 		registry.bind("defaultHttpServer", server);
 		context.setRegistry(registry);
-
 		context.start();
 
 		registerCamelRoutes(context);

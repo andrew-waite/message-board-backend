@@ -1,0 +1,7 @@
+hibernate.connection.driver_class=com.microsoft.sqlserver.jdbc.SQLServerDriver
+hibernate.connection.url=jdbc:sqlserver://<server>:<port>;databaseName=<databaseName>
+hibernate.connection.username=<username>
+hibernate.connection.password=<password>
+hibernate.dialect=org.hibernate.dialect.SQLServerDialect
+hibernate.hbm2ddl.auto=update
+hibernate.show_sql=true
