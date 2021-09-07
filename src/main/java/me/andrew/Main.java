@@ -1,9 +1,9 @@
 package me.andrew;
 
 import lombok.extern.apachecommons.CommonsLog;
-import me.andrew.providers.DatabaseProvider;
 import me.andrew.providers.MssqlDatabaseProvider;
-import me.andrew.routes.LandingPageRouteBuilder;
+import me.andrew.routes.ProfileGetUserByIdRouteBuilder;
+import me.andrew.routes.ProfileLoginRouteBuilder;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.netty.http.DefaultNettySharedHttpServer;
 import org.apache.camel.component.netty.http.NettySharedHttpServer;
@@ -11,8 +11,6 @@ import org.apache.camel.component.netty.http.NettySharedHttpServerBootstrapConfi
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultRegistry;
 import org.springframework.context.support.StaticApplicationContext;
-
-import javax.swing.*;
 
 @CommonsLog
 public class Main {
@@ -59,6 +57,12 @@ public class Main {
 
 		var registry = new DefaultRegistry();
 		registry.bind("defaultHttpServer", server);
+		context.getRestConfiguration().setEnableCORS(true);
+		context.getRestConfiguration().setCorsHeaders(
+			"Access-Control-Allow-Origin", "http://localhost:4200",
+			"Access-Control-Allow-Methods", "POST,GET,PUT,DELETE,OPTIONS"
+		);
+
 		context.setRegistry(registry);
 		context.start();
 
@@ -69,7 +73,8 @@ public class Main {
 
 	private void registerCamelRoutes(CamelContext context) {
 		try {
-			context.addRoutes(new LandingPageRouteBuilder());
+			context.addRoutes(new ProfileGetUserByIdRouteBuilder());
+			context.addRoutes(new ProfileLoginRouteBuilder());
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to register camel routes", e);
 		}
