@@ -1,7 +1,9 @@
 package me.andrew.routes;
 
 import me.andrew.models.User;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ProfileLoginRouteBuilder extends BaseRouteBuilder {
     @Override
     public void configure() throws Exception {

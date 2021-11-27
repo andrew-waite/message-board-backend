@@ -1,39 +1,28 @@
 package me.andrew;
 
 import lombok.extern.apachecommons.CommonsLog;
-import me.andrew.providers.MssqlDatabaseProvider;
-import me.andrew.routes.ProfileGetUserByIdRouteBuilder;
-import me.andrew.routes.ProfileLoginRouteBuilder;
-import org.apache.camel.CamelContext;
 import org.apache.camel.component.netty.http.DefaultNettySharedHttpServer;
 import org.apache.camel.component.netty.http.NettySharedHttpServer;
 import org.apache.camel.component.netty.http.NettySharedHttpServerBootstrapConfiguration;
-import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.support.DefaultRegistry;
-import org.springframework.context.support.StaticApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
 
 @CommonsLog
+@SpringBootApplication
 public class Main {
 	public static void main(String[] args) {
 		new Main().start();
 	}
 
 	public void start() {
-		startSpringApplicationAndRegisterBeans();
+		SpringApplication.run(Main.class);
 
-		var server = createAndStartDefaultNettyServer();
-		startCamelContext(server);
-
+		JettyReverseProxy.start();
 	}
 
-	private void startSpringApplicationAndRegisterBeans() {
-		var staticApplicationContext = new StaticApplicationContext();
-		staticApplicationContext.getBeanFactory().registerSingleton("databaseProvider", new MssqlDatabaseProvider());
-		staticApplicationContext.registerBean("springContext", SpringContext.class, staticApplicationContext);
-		staticApplicationContext.refresh();
-		staticApplicationContext.start();
-	}
-
+	@Bean(name = "defaultHttpServer")
 	public NettySharedHttpServer createAndStartDefaultNettyServer() {
 		log.info("Stating netty server");
 		var nettyConfiguration = new NettySharedHttpServerBootstrapConfiguration();
@@ -49,34 +38,5 @@ public class Main {
 		log.info("Netty server started");
 
 		return server;
-	}
-
-	public void startCamelContext(NettySharedHttpServer server) {
-		log.info("Starting camel context and routes");
-		var context = new DefaultCamelContext();
-
-		var registry = new DefaultRegistry();
-		registry.bind("defaultHttpServer", server);
-		context.getRestConfiguration().setEnableCORS(true);
-		context.getRestConfiguration().setCorsHeaders(
-			"Access-Control-Allow-Origin", "http://localhost:4200",
-			"Access-Control-Allow-Methods", "POST,GET,PUT,DELETE,OPTIONS"
-		);
-
-		context.setRegistry(registry);
-		context.start();
-
-		registerCamelRoutes(context);
-
-		log.info("All routes started");
-	}
-
-	private void registerCamelRoutes(CamelContext context) {
-		try {
-			context.addRoutes(new ProfileGetUserByIdRouteBuilder());
-			context.addRoutes(new ProfileLoginRouteBuilder());
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to register camel routes", e);
-		}
 	}
 }

@@ -1,22 +1,18 @@
 package me.andrew.routes;
 
-import me.andrew.SpringContext;
 import me.andrew.models.User;
 import me.andrew.providers.DatabaseProvider;
-import org.apache.camel.builder.*;
-import org.apache.camel.component.jackson.*;
-import org.apache.camel.model.*;
-import org.apache.camel.spi.DataFormat;
-import org.apache.camel.spi.annotations.Dataformat;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.*;
-
+@Component
 public class ProfileGetUserByIdRouteBuilder extends BaseRouteBuilder {
-    private DatabaseProvider databaseProvider = null;
+    @Autowired
+    private DatabaseProvider databaseProvider;
 
     public ProfileGetUserByIdRouteBuilder() {
-        this.databaseProvider = (DatabaseProvider) SpringContext.getBean("databaseProvider");
     }
+
     @Override
     public void configure() throws Exception {
         from("/profile/{id}")
