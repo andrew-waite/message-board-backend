@@ -22,9 +22,9 @@ public abstract class BaseRouteBuilder extends RouteBuilder {
             .process(exchange -> {
                 exchange.getIn().setHeader("Content-Type", "application/json");
                // exchange.getIn().setHeader("refer", "localhost");
-                exchange.getIn().setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-                exchange.getIn().setHeader("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE,OPTIONS");
-                exchange.getIn().setHeader("Access-Control-Allow-Credentials", true);
+                //exchange.getIn().setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+               // exchange.getIn().setHeader("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE,OPTIONS");
+                //exchange.getIn().setHeader("Access-Control-Allow-Credentials", true);
                 //exchange.getIn().setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token, Authorization");
             });
     }
