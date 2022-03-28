@@ -23,13 +23,11 @@ public class Main {
 
 		var server = createAndStartDefaultNettyServer();
 		startCamelContext(server);
-
 	}
 
 	private void startSpringApplicationAndRegisterBeans() {
 		var staticApplicationContext = new StaticApplicationContext();
 		staticApplicationContext.getBeanFactory().registerSingleton("databaseProvider", new MssqlDatabaseProvider());
-		staticApplicationContext.registerBean("springContext", SpringContext.class, staticApplicationContext);
 		staticApplicationContext.refresh();
 		staticApplicationContext.start();
 	}
@@ -57,11 +55,6 @@ public class Main {
 
 		var registry = new DefaultRegistry();
 		registry.bind("defaultHttpServer", server);
-		context.getRestConfiguration().setEnableCORS(true);
-		context.getRestConfiguration().setCorsHeaders(
-			"Access-Control-Allow-Origin", "http://localhost:4200",
-			"Access-Control-Allow-Methods", "POST,GET,PUT,DELETE,OPTIONS"
-		);
 
 		context.setRegistry(registry);
 		context.start();
@@ -73,7 +66,7 @@ public class Main {
 
 	private void registerCamelRoutes(CamelContext context) {
 		try {
-			context.addRoutes(new ProfileGetUserByIdRouteBuilder());
+			context.addRoutes(new ProfileGetUserByIdRouteBuilder(new MssqlDatabaseProvider()));
 			context.addRoutes(new ProfileLoginRouteBuilder());
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to register camel routes", e);
